@@ -15,6 +15,7 @@
     linkDistance = d => 75 * (1 -d.value) + 25,
     width = 640, // outer width, in pixels
     height = 400, // outer height, in pixels
+    onNodeClick, //event handler for node being clicked
     } = {}) {
       //Params needed outside of constructor
       this.linkDistance = linkDistance
@@ -23,7 +24,7 @@
       this.graphName = graphName
       //EVENT HANLDERS TO BE SET BY USER
       //when a node is clicked (e,d) e = event, d = data, so if msft node is clicked d is {'id':MSFT,...}
-      this.onNodeClicked
+      this.onNodeClicked = onNodeClick
       //Data
       this.nodes = nodes
       this.links = links
@@ -84,7 +85,7 @@
     }
     removeData(oldNodes,oldLinks) {
       //removes nodes
-      this.links = this.links.filter(node => !oldLinks.some(oldLink => oldLink.id === link.id))
+      this.links = this.links.filter(link => !oldLinks.some(oldLink => oldLink.id === link.id))
       this.nodes = this.nodes.filter(node => !oldNodes.some(oldNode => oldNode.id === node.id))
       //updates svg
       this.update()
@@ -115,7 +116,7 @@
           .attr("x",d => -this.nodeRadius(d)).attr("y",d => -this.nodeRadius(d))
           .attr("height",d => 2*this.nodeRadius(d))
           .attr("width",d => 2*this.nodeRadius(d)) 
-          .on("click",(e,d) => this.onNodeClicked ? this.onNodeClicked(e,d) : null)
+          .on("click",(e,d) => this.onNodeClicked ? this.onNodeClicked(e,d) : null) //If an event handler is specified use it otherwise do nothing
           .select(function() {
             return this.parentNode; //makes sure node returns to the g tag, not the image tag so the image is what gets moved
           }),
