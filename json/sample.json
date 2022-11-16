@@ -1,0 +1,43 @@
+{
+    "nodes":[{
+        "id":"MSFT",
+        "market_cap":12
+    },
+    {
+        "id":"AAPL",
+        "market_cap":14
+    },
+    {
+        "id":"CVNA",
+        "market_cap":3
+    },
+    {
+        "id":"F",
+        "market_cap":5
+    },{
+        "id":"TSLA",
+        "market_cap":8
+    }],
+    "links":[{
+        "source":"MSFT",
+        "target":"AAPL",
+        "value":0.1
+    },{
+        "source":"CVNA",
+        "target":"AAPL",
+        "value": 0.7
+    },
+    {
+        "source":"F",
+        "target":"AAPL",
+        "value": 0.1
+    },{
+        "source":"TSLA",
+        "target":"AAPL",
+        "value": 0.1
+    },{
+        "source":"TSLA",
+        "target":"F",
+        "value": 0.8
+    }]
+}
