@@ -26,27 +26,33 @@ export default function Home({data}:any) {
   const graphElement:any = useRef()
   //Holds the graph class reference including, addData, and removeData, this isn't state because its not the reactdom we change its the regular dom so everything is handled explicitly
   const graph:any = useRef()
-  const {nodes,links} = data
+
+  //On mount creates the graph with the static prop data
   useEffect(()=> {
     if(graphElement.current.childNodes.length == 0) {
-    const whenNodeClicked = (d:any) => {
-        console.log(d);
-    } 
+
+
     graph.current = new  Graph({"nodes":data.nodes,"links":data.links}, {    //@ts-ignore
       nodeId: d => d.id,    //@ts-ignore
       nodeTitle: d => `${d.id}`,
       nodeStroke:"#000",
       nodeStrokeWidth:0,    //@ts-ignore
       nodeRadius: d => d.market_cap ? 2* d.market_cap + 10: 30,    //@ts-ignore
-      onNodeClick:(e,d) => whenNodeClicked(d), //first param is pointer event, second param is datas
+      // onNodeClick:(e,d) => console.log(d), //first param is pointer event, second param is datas
       width:1400,
       height: 1000,
       invalidation: undefined// a promise to stop the simulation when the cell is re-run
     })
       graphElement.current.appendChild(graph.current.graph)
+
+      graph.current.onNodeClicked = (e:any,d:any) => {
+        //removes node that was clicked on
+          graph.current.removeData([d],[])
+      }
       setGraphSetup(true) //TODO is this deterministic as a way to prevent changes to the selector effecting the graph onload
   }
   },[])
+
   useEffect(()=>{
     if(graphSetup) {
       graph.current.removeData(graph.current.nodes,graph.current.links)
@@ -55,6 +61,7 @@ export default function Home({data}:any) {
         return await fetch(`../json/${dataFilename}`)
         .then((response) => response.json())
         .then((json) => {
+          json.links.forEach((link:any,i:Number) => {link.id = Math.random()})
           graph.current.addData(json.nodes,json.links)
         });
       }

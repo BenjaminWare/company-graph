@@ -80,9 +80,11 @@
       //adds unique nodes and links
       this.links.push(...(newLinks.filter((link) => this.links.indexOf(link) === -1)))
       this.nodes.push(...(newNodes.filter((node) => this.nodes.indexOf(node) === -1)))
+      
       //updates svg
       this.update()
     }
+
     removeData(oldNodes,oldLinks) {
       //removes nodes
       this.links = this.links.filter(link => !oldLinks.some(oldLink => oldLink.id === link.id))
@@ -96,8 +98,10 @@
     update = () => {
       const N = d3.map(this.nodes, d => d.id)
   
+      const forceLink = d3.forceLink(this.links).id(({index: i}) => N[i]).distance(this.linkDistance)
       //Kind of a slow implementation, TODO remove links that are related to a node that got dropped
       this.links = this.links.filter((link) => (N.includes(link.source) ||  N.includes(link.source.id)) && (N.includes(link.target) || N.includes(link.target.id)))
+  
   
       //changes link html elements
       let link = this.linkWrapper.selectAll("line")
@@ -126,9 +130,7 @@
   
   
       //create link force to drive simulation
-      const forceLink = d3.forceLink(this.links).id(({index: i}) => N[i]).distance(this.linkDistance)
       this.simulation.nodes(this.nodes).force("link",forceLink).on("tick", ticked).alphaTarget(0.3).restart();
-  
       //Drag part of the sim
       function drag(simulation) {    
       function dragstarted(event) {
