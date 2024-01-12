@@ -19,18 +19,18 @@ export async function getStaticProps(context: any) {
 export default function Home({data}:any) {
 
   const [dataFilename,setDataFilename] = useState("upsTree2.json")
-  const [graphSetup, setGraphSetup] = useState(false)
+  const hasMounted = useRef(false)
 
 
   //Points to the div that wraps the graph svg
   const graphElement:any = useRef()
   //Holds the graph class reference including, addData, and removeData, this isn't state because its not the reactdom we change its the regular dom so everything is handled explicitly
   const graph:any = useRef()
+  const readingDataLock:any = useRef(false)
 
   //On mount creates the graph with the static prop data
   useEffect(()=> {
     if(graphElement.current.childNodes.length == 0) {
-
 
     graph.current = new  Graph({"nodes":data.nodes,"links":data.links}, {    //@ts-ignore
       nodeId: d => d.id,    //@ts-ignore
@@ -46,16 +46,22 @@ export default function Home({data}:any) {
       graphElement.current.appendChild(graph.current.graph)
 
       graph.current.onNodeClicked = (e:any,d:any) => {
+        console.log(e)
         //removes node that was clicked on
           graph.current.removeData([d],[])
       }
-      setGraphSetup(true) //TODO is this deterministic as a way to prevent changes to the selector effecting the graph onload
+      hasMounted.current = true
   }
   },[])
 
   useEffect(()=>{
-    if(graphSetup) {
+    if(hasMounted && !readingDataLock.current) {
+      // Only let the data be read once, don't allow resets while reading
+      readingDataLock.current = true 
+      console.log('client fetch')
+      console.log(graph.current.nodes)
       graph.current.removeData(graph.current.nodes,graph.current.links)
+      console.log(graph.current.nodes)
       const fetchJSONData = async () => {
         //reads from the json folder in the public folder, users could navigate to this page if they wanted
         return await fetch(`../json/${dataFilename}`)
@@ -63,14 +69,17 @@ export default function Home({data}:any) {
         .then((json) => {
           json.links.forEach((link:any,i:Number) => {link.id = Math.random()})
           graph.current.addData(json.nodes,json.links)
+          //Un lock reader
+          readingDataLock.current = false
         });
       }
-      fetchJSONData().catch(console.error);
+      fetchJSONData().catch(() => {readingDataLock.current = false;console.error});
 
     }
   },[dataFilename])
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container}> 
       <select value={dataFilename} onChange={(e=> setDataFilename(e.target.value))} name="data" id="data">
         <option value="sample.json">Sample</option>
         <option value="upsTree2.json">UPS</option>

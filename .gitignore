@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ignore the saved model as it is too large to fit on github
+/doc2vecModel/ten_k_model
+/doc2vecModel/ten_k_model.syn1neg.npy
+/doc2vecModel/ten_k_model.trainables.syn1neg.npy
+/doc2vecModel/ten_k_model.wv.vectors.npy
